@@ -1,0 +1,31 @@
+pipeline {
+  environment {
+    registry = "nurigundogan/devopschallenge"
+    registryCredential = 'dockerhub'
+    dockerImage = ''
+  }
+  agent any
+  stages {
+    stage('Cloning GitHub Project') {
+      steps {
+        git 'https://github.com/nurigundogan/devopschallenge.git'
+      }
+    }
+    stage('Building Docker Image') {
+      steps{
+        script {
+          dockerImage = docker.build registry + ":$BUILD_NUMBER"
+        }
+      }
+    }
+    stage('Pushing Docker Image Registry') {
+      steps{
+        script {
+          docker.withRegistry( '', registryCredential ) {
+            dockerImage.push()
+          }
+        }
+      }
+    }
+  }
+}
